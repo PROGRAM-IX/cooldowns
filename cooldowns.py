@@ -76,6 +76,10 @@ start_W = time.time()
 start_E = time.time()
 start_R = time.time()
 
+paused = False
+pause_time = None
+
+
 blockTypes = [pygame.Rect(XMARGIN, -90, 80, 80), pygame.Rect(XMARGIN, -50, 40, 40), pygame.Rect(XMARGIN, -50, 50, 50), pygame.Rect(XMARGIN, -50, 30, 30)]
 scores = [10, 20, 30, 40]
 blocks = [] # list of active blocks 
@@ -88,7 +92,7 @@ missed = 0 # number of keypresses that have not hit an appropriate target
 dropped = 0 # number of blocks that have fallen offscreen
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped
+    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped, paused
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
@@ -111,55 +115,63 @@ def main():
     BEEP4 = pygame.mixer.Sound('beep4.ogg')
 
     while True: # main game loop
-        clickedButton = None # button that was clicked (set to YELLOW, RED, GREEN, or BLUE)
-        DISPLAYSURF.fill(bgColor)
         
         checkForQuit()
-        if spawnBlock % 60 == 0:
-            newBlock()
-        spawnBlock = spawnBlock + 1
-        
-        for a in blocks:
-            #print "test"
-            if a.rect.y > WINDOWHEIGHT:
-                blocks.remove(a)
-                dropped += 1
-            
-            else:
-                if a.rect.x + a.rect.width >= WINDOWWIDTH or a.rect.x <= 0:
-                    a.xMod = a.xMod * -1
-                a.rect.y = a.rect.y + a.yMod
-                a.rect.x = a.rect.x + a.xMod
-                #pygame.draw.rect(DISPLAYSURF, BRIGHTYELLOW, a)
-                a.draw()
-    
         for event in pygame.event.get(): # event handling loop
             if event.type == MOUSEMOTION:
                 mousex, mousey = event.pos
                 #clickedButton = getButtonClicked(mousex, mousey)
             elif event.type == KEYDOWN:
-                if event.key == K_q and _Q:
-                    q()
-                    clickedButton = YELLOW
-                elif event.key == K_w and _W:
-                    w()
-                    clickedButton = BLUE
-                elif event.key == K_e and _E:
-                    e()
-                    clickedButton = RED
-                elif event.key == K_r and _R:
-                    r()
-                    clickedButton = GREEN
-        drawButtons()
-        updateCooldowns()
-        displayCooldowns()
-        scoreSurf = BASICFONT.render("Score: " + str(score) + " Missed: " + str(missed) + " Dropped: " + str(dropped), 1, WHITE)
-        scoreRect = scoreSurf.get_rect()
-        scoreRect.topleft = (10, 10)
-        DISPLAYSURF.blit(scoreSurf, scoreRect) 
-        DISPLAYSURF.blit(infoSurf, infoRect)
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
+                if not paused:
+                    
+                    if event.key == K_q and _Q:
+                        q()
+                        clickedButton = YELLOW
+                    elif event.key == K_w and _W:
+                        w()
+                        clickedButton = BLUE
+                    elif event.key == K_e and _E:
+                        e()
+                        clickedButton = RED
+                    elif event.key == K_r and _R:
+                        r()
+                        clickedButton = GREEN
+                if event.key == K_p:
+                    pauseUnpause()
+        
+        if not paused:
+            clickedButton = None # button that was clicked (set to YELLOW, RED, GREEN, or BLUE)
+            DISPLAYSURF.fill(bgColor)
+            
+            
+            if spawnBlock % 60 == 0:
+                newBlock()
+            spawnBlock = spawnBlock + 1
+            
+            for a in blocks:
+                #print "test"
+                if a.rect.y > WINDOWHEIGHT:
+                    blocks.remove(a)
+                    dropped += 1
+                
+                else:
+                    if a.rect.x + a.rect.width >= WINDOWWIDTH or a.rect.x <= 0:
+                        a.xMod = a.xMod * -1
+                    a.rect.y = a.rect.y + a.yMod
+                    a.rect.x = a.rect.x + a.xMod
+                    #pygame.draw.rect(DISPLAYSURF, BRIGHTYELLOW, a)
+                    a.draw()
+        
+            drawButtons()
+            updateCooldowns()
+            displayCooldowns()
+            scoreSurf = BASICFONT.render("Score: " + str(score) + " Missed: " + str(missed) + " Dropped: " + str(dropped), 1, WHITE)
+            scoreRect = scoreSurf.get_rect()
+            scoreRect.topleft = (10, 10)
+            DISPLAYSURF.blit(scoreSurf, scoreRect) 
+            DISPLAYSURF.blit(infoSurf, infoRect)
+            pygame.display.update()
+            FPSCLOCK.tick(FPS)
 
 
 def newBlock():
@@ -180,16 +192,15 @@ def displayCooldowns():
     DISPLAYSURF.blit(eSurf, E_RECT)
     rSurf = BASICFONT.render('R', 1, BLACK)
     DISPLAYSURF.blit(rSurf, R_RECT)
-    qCDSurf = BIGFONT.render(str(curr_CD_Q), 1, BLACK)
+    qCDSurf = BIGFONT.render(str(int(curr_CD_Q % 1000.0)), 1, BLACK)
     DISPLAYSURF.blit(qCDSurf, Q_RECT)
-    wCDSurf = BIGFONT.render(str(curr_CD_W), 1, BLACK)
+    wCDSurf = BIGFONT.render(str(int(curr_CD_W % 1000.0)), 1, BLACK)
     DISPLAYSURF.blit(wCDSurf, W_RECT)
-    eCDSurf = BIGFONT.render(str(curr_CD_E), 1, BLACK)
+    eCDSurf = BIGFONT.render(str(int(curr_CD_E % 1000.0)), 1, BLACK)
     DISPLAYSURF.blit(eCDSurf, E_RECT)
-    rCDSurf = BIGFONT.render(str(curr_CD_R), 1, BLACK)
+    rCDSurf = BIGFONT.render(str(int(curr_CD_R % 1000.0)), 1, BLACK)
     DISPLAYSURF.blit(rCDSurf, R_RECT)
-
-
+    
 def q():
     global start_Q, _Q, BEEP1, mousex, mousey, score, missed
     start_Q = time.time()
@@ -260,32 +271,48 @@ def updateCooldowns():
     global curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, _Q, _W, _E, _R
       
     if not _Q:
-	curr_CD_Q = int(CD_Q - ((time.time() - start_Q) % 1000.0))
+        #curr_CD_Q = int(CD_Q - ((time.time() - start_Q) % 1000.0))
+        curr_CD_Q = (CD_Q) - (time.time() - start_Q)
     if not _W:
-	curr_CD_W = int(CD_W - ((time.time() - start_W) % 1000.0))
+        #curr_CD_W = int(CD_W - ((time.time() - start_W) % 1000.0))
+        curr_CD_W = (CD_W) - (time.time() - start_W)
     if not _E:
-	curr_CD_E = int(CD_E - ((time.time() - start_E) % 1000.0))
+        #curr_CD_E = int(CD_E - ((time.time() - start_E) % 1000.0))
+        curr_CD_E = (CD_E) - (time.time() - start_E)
     if not _R:
-	curr_CD_R = int(CD_R - ((time.time() - start_R) % 1000.0))
+        #curr_CD_R = int(CD_R - ((time.time() - start_R) % 1000.0))
+        curr_CD_R = (CD_R) - (time.time() - start_R)
     
-    if curr_CD_Q == 0:
-	_Q = True
-    if curr_CD_W == 0:
-	_W = True
-    if curr_CD_E == 0:
-	_E = True
-    if curr_CD_R == 0:
-	_R = True
+    if curr_CD_Q <= 0:
+        curr_CD_Q = 0
+        _Q = True
+    if curr_CD_W <= 0:
+        curr_CD_W = 0
+        _W = True
+    if curr_CD_E <= 0:
+        curr_CD_E = 0
+        _E = True
+    if curr_CD_R <= 0:
+        curr_CD_R = 0
+        _R = True
     
     
 def terminate():
     pygame.quit()
     sys.exit()
 
+def pauseUnpause():
+    global paused
+    if paused:
+        paused = False
+        start_Q = pause_time - start_Q
+    else:
+        paused = True
+        pause_time = time.time()
 
 def checkForQuit():
     for event in pygame.event.get(QUIT): # get all the QUIT events
-	terminate() # terminate if any QUIT events are present
+        terminate() # terminate if any QUIT events are present
     for event in pygame.event.get(KEYUP): # get all the KEYUP events
         if event.key == K_ESCAPE:
             terminate() # terminate if the KEYUP event was for the Esc key
@@ -294,21 +321,21 @@ def checkForQuit():
 
 def drawButtons():
     if _Q:
-	pygame.draw.rect(DISPLAYSURF, BRIGHTYELLOW, Q_RECT)
+        pygame.draw.rect(DISPLAYSURF, BRIGHTYELLOW, Q_RECT)
     else:
-	pygame.draw.rect(DISPLAYSURF, YELLOW, Q_RECT)
+        pygame.draw.rect(DISPLAYSURF, YELLOW, Q_RECT)
     if _W:
-	pygame.draw.rect(DISPLAYSURF, BRIGHTBLUE, W_RECT)
+        pygame.draw.rect(DISPLAYSURF, BRIGHTBLUE, W_RECT)
     else:
-	pygame.draw.rect(DISPLAYSURF, BLUE, W_RECT)
+        pygame.draw.rect(DISPLAYSURF, BLUE, W_RECT)
     if _E:
-	pygame.draw.rect(DISPLAYSURF, BRIGHTRED, E_RECT)
+        pygame.draw.rect(DISPLAYSURF, BRIGHTRED, E_RECT)
     else:
-	pygame.draw.rect(DISPLAYSURF, RED, E_RECT)
+        pygame.draw.rect(DISPLAYSURF, RED, E_RECT)
     if _R:
-	pygame.draw.rect(DISPLAYSURF, BRIGHTGREEN, R_RECT)
+        pygame.draw.rect(DISPLAYSURF, BRIGHTGREEN, R_RECT)
     else:
-	pygame.draw.rect(DISPLAYSURF, GREEN, R_RECT)
+        pygame.draw.rect(DISPLAYSURF, GREEN, R_RECT)
 
 
 #def getButtonClicked(x, y):
