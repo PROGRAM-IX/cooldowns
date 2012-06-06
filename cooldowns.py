@@ -77,8 +77,6 @@ start_E = time.time()
 start_R = time.time()
 
 paused = False
-pause_time = None
-
 
 blockTypes = [pygame.Rect(XMARGIN, -90, 80, 80), pygame.Rect(XMARGIN, -50, 40, 40), pygame.Rect(XMARGIN, -50, 50, 50), pygame.Rect(XMARGIN, -50, 30, 30)]
 scores = [10, 20, 30, 40]
@@ -302,10 +300,15 @@ def terminate():
     sys.exit()
 
 def pauseUnpause():
-    global paused
+    global paused, start_Q, start_W, start_E, start_R
     if paused:
+        now = time.time()
         paused = False
-        start_Q = pause_time - start_Q
+        print (CD_Q) - curr_CD_Q
+        start_Q = now - ((CD_Q) - curr_CD_Q)
+        start_W = now - ((CD_W) - curr_CD_W)
+        start_E = now - ((CD_E) - curr_CD_E)
+        start_R = now - ((CD_R) - curr_CD_R)
     else:
         paused = True
         pause_time = time.time()
