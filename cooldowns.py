@@ -1,8 +1,3 @@
-# Simulate (a Simon clone)
-# By Al Sweigart al@inventwithpython.com
-# http://inventwithpython.com/pygame
-# Released under a "Simplified BSD" license
-
 import random, sys, time, pygame
 from pygame.locals import *
 
@@ -118,7 +113,7 @@ def main():
         for event in pygame.event.get(): # event handling loop
             if event.type == MOUSEMOTION:
                 mousex, mousey = event.pos
-                #clickedButton = getButtonClicked(mousex, mousey)
+                
             elif event.type == KEYDOWN:
                 if not paused:
                     
@@ -140,7 +135,6 @@ def main():
         if not paused:
             clickedButton = None # button that was clicked (set to YELLOW, RED, GREEN, or BLUE)
             DISPLAYSURF.fill(bgColor)
-            
             
             if spawnBlock % 60 == 0:
                 newBlock()
