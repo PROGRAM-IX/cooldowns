@@ -83,9 +83,10 @@ colours = [BRIGHTYELLOW, BRIGHTBLUE, BRIGHTRED, BRIGHTGREEN]
 score = 0
 missed = 0 # number of keypresses that have not hit an appropriate target
 dropped = 0 # number of blocks that have fallen offscreen
+changeDir = 0 # counter to determine if we should attempt a direction change
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped, paused
+    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped, paused, changeDir
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
@@ -139,6 +140,8 @@ def main():
             if spawnBlock % 60 == 0:
                 newBlock()
             spawnBlock = spawnBlock + 1
+        
+                
             
             for a in blocks:
                 #print "test"
@@ -313,7 +316,7 @@ def checkForQuit():
     for event in pygame.event.get(KEYUP): # get all the KEYUP events
         if event.key == K_ESCAPE:
             terminate() # terminate if the KEYUP event was for the Esc key
-	pygame.event.post(event) # put the other KEYUP event objects back
+        pygame.event.post(event) # put the other KEYUP event objects back
 
 
 def drawButtons():
@@ -333,23 +336,6 @@ def drawButtons():
         pygame.draw.rect(DISPLAYSURF, BRIGHTGREEN, R_RECT)
     else:
         pygame.draw.rect(DISPLAYSURF, GREEN, R_RECT)
-
-
-#def getButtonClicked(x, y):
-    #global start_Q, start_W, start_E, start_R, _Q, _W, _E, _R
-    #if Q_RECT.collidepoint( (x, y) ) and _Q:
-	#	q()
-	#	return YELLOW
-    #elif W_RECT.collidepoint( (x, y) ) and _W:
-    #    w()
-    #    return BLUE
-    #elif E_RECT.collidepoint( (x, y) ) and _E:
-	#	e()
-	#	return RED
-    #elif R_RECT.collidepoint( (x, y) ) and _R:
-	#	r()
-	#	return GREEN
-    #return None
 
 
 if __name__ == '__main__':
