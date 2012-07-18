@@ -7,6 +7,7 @@ class HitBlock(object):
     rect = None
     xMod = 0
     yMod = 0
+    changeDir = 0 # counter to determine if we should attempt a direction change
     def __init__(self, h, r):
         object.__init__(self)
         self.hit = h
@@ -16,8 +17,17 @@ class HitBlock(object):
     def activate(self):
         self.hit = -1 # if planning to grey out blocks you've hit
         return self.score 
+    def update(self):
+        self.changeDirTest()
+        self.draw()
     def draw(self):
         pygame.draw.rect(DISPLAYSURF, colours[self.hit], self.rect)
+    def changeDirTest(self):
+        if self.changeDir % 60 == 0:
+            if random.randint(0, 5) == 0:
+                self.xMod = random.randint(-2, 2)
+                self.yMod = random.randint(1, 3)
+        self.changeDir = self.changeDir + 1
     
 
 FPS = 30
@@ -83,10 +93,10 @@ colours = [BRIGHTYELLOW, BRIGHTBLUE, BRIGHTRED, BRIGHTGREEN]
 score = 0
 missed = 0 # number of keypresses that have not hit an appropriate target
 dropped = 0 # number of blocks that have fallen offscreen
-changeDir = 0 # counter to determine if we should attempt a direction change
+
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped, paused, changeDir
+    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped, paused
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
@@ -155,7 +165,7 @@ def main():
                     a.rect.y = a.rect.y + a.yMod
                     a.rect.x = a.rect.x + a.xMod
                     #pygame.draw.rect(DISPLAYSURF, BRIGHTYELLOW, a)
-                    a.draw()
+                    a.update()
         
             drawButtons()
             updateCooldowns()
