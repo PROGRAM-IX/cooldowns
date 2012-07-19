@@ -328,6 +328,7 @@ def updateCooldowns():
 def terminate():
     pygame.quit()
     sys.exit()
+    raise SystemExit 
 
 def pauseUnpause():
     global paused, start_Q, start_W, start_E, start_R
