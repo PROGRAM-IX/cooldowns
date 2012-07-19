@@ -38,6 +38,7 @@ BUTTONGAPSIZE = 20
 
 BASICFONT = None
 BIGFONT = None
+MEDFONT = None
 
 #                R    G    B
 WHITE        = (255, 255, 255)
@@ -96,7 +97,7 @@ dropped = 0 # number of blocks that have fallen offscreen
 
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped, paused
+    global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, MEDFONT, BEEP1, BEEP2, BEEP3, BEEP4, start_Q, start_W, start_E, start_R, _Q, _W, _E, _R, curr_CD_Q, curr_CD_W, curr_CD_E, curr_CD_R, spawnBlock, blocks, mousex, mousey, score, missed, dropped, paused
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
@@ -107,7 +108,8 @@ def main():
     curr_CD_R = 0   
     BASICFONT = pygame.font.Font('freesansbold.ttf', 16)
     BIGFONT = pygame.font.Font('freesansbold.ttf', 90)
-    
+    MEDFONT = pygame.font.Font('freesansbold.ttf', 70)
+
     infoSurf = BASICFONT.render('Learn cooldown patterns by using the Q, W, E, R keys.', 1, WHITE)
     infoRect = infoSurf.get_rect()
     infoRect.topleft = (10, WINDOWHEIGHT - 20)
@@ -197,15 +199,36 @@ def displayCooldowns():
     DISPLAYSURF.blit(eSurf, E_RECT)
     rSurf = BASICFONT.render('R', 1, BLACK)
     DISPLAYSURF.blit(rSurf, R_RECT)
-    qCDSurf = BIGFONT.render(str(int(curr_CD_Q % 1000.0)), 1, BLACK)
-    DISPLAYSURF.blit(qCDSurf, Q_RECT)
-    wCDSurf = BIGFONT.render(str(int(curr_CD_W % 1000.0)), 1, BLACK)
-    DISPLAYSURF.blit(wCDSurf, W_RECT)
-    eCDSurf = BIGFONT.render(str(int(curr_CD_E % 1000.0)), 1, BLACK)
-    DISPLAYSURF.blit(eCDSurf, E_RECT)
-    rCDSurf = BIGFONT.render(str(int(curr_CD_R % 1000.0)), 1, BLACK)
-    DISPLAYSURF.blit(rCDSurf, R_RECT)
-    
+    if not _Q:
+        cd = curr_CD_Q % 1000.0
+        if cd < 1.0:
+            qCDSurf = MEDFONT.render("{0:.1f}".format(cd), 1, BLACK)
+        else:
+            qCDSurf = BIGFONT.render(str(int(cd)), 1, BLACK)
+        DISPLAYSURF.blit(qCDSurf, Q_RECT)
+    if not _W:
+        cd = curr_CD_W % 1000.0
+        if cd < 1.0:
+            wCDSurf = MEDFONT.render("{0:.1f}".format(cd), 1, BLACK)
+        else:
+            wCDSurf = BIGFONT.render(str(int(cd)), 1, BLACK)
+        DISPLAYSURF.blit(wCDSurf, W_RECT)
+    if not _E:
+        cd = curr_CD_E % 1000.0
+        if cd < 1.0:
+            eCDSurf = MEDFONT.render("{0:.1f}".format(cd), 1, BLACK)
+        else:
+            eCDSurf = BIGFONT.render(str(int(cd)), 1, BLACK)
+        DISPLAYSURF.blit(eCDSurf, E_RECT)
+    if not _R:
+        cd = curr_CD_R % 1000.0
+        if cd < 1.0:
+            rCDSurf = MEDFONT.render("{0:.1f}".format(cd), 1, BLACK)
+        else:
+            rCDSurf = BIGFONT.render(str(int(cd)), 1, BLACK)
+        DISPLAYSURF.blit(rCDSurf, R_RECT)
+
+
 def q():
     global start_Q, _Q, BEEP1, mousex, mousey, score, missed
     start_Q = time.time()
@@ -277,16 +300,16 @@ def updateCooldowns():
       
     if not _Q:
         #curr_CD_Q = int(CD_Q - ((time.time() - start_Q) % 1000.0))
-        curr_CD_Q = (CD_Q) - (time.time() - start_Q)
+        curr_CD_Q = (CD_Q) - (time.time() - start_Q)  
     if not _W:
         #curr_CD_W = int(CD_W - ((time.time() - start_W) % 1000.0))
-        curr_CD_W = (CD_W) - (time.time() - start_W)
+        curr_CD_W = (CD_W) - (time.time() - start_W) 
     if not _E:
         #curr_CD_E = int(CD_E - ((time.time() - start_E) % 1000.0))
         curr_CD_E = (CD_E) - (time.time() - start_E)
     if not _R:
         #curr_CD_R = int(CD_R - ((time.time() - start_R) % 1000.0))
-        curr_CD_R = (CD_R) - (time.time() - start_R)
+        curr_CD_R = (CD_R) - (time.time() - start_R) 
     
     if curr_CD_Q <= 0:
         curr_CD_Q = 0
